@@ -1,0 +1,39 @@
+#This compose file is meant to be used for local development only. Please do not run this in production.
+
+version: '3.1'
+
+services:
+  postgres:
+    image: docker.io/bitnami/postgresql:14
+    restart: always
+    environment:
+      POSTGRESQL_USERNAME: test
+      POSTGRESQL_PASSWORD: test
+      POSTGRESQL_DATABASE: test
+      POSTGRESQL_REPLICATION_MODE: master
+      POSTGRESQL_REPLICATION_USER: testrep
+      POSTGRESQL_REPLICATION_PASSWORD: testrep
+    volumes:
+      - pgs:/var/lib/postgresql/data
+    networks:
+      - basenet
+  base_img:
+    image: ilyatbn/base_img-dev:latest
+    restart: always
+    user: 1000:1000
+    depends_on: [postgres]
+    environment:
+      DB_ENGINE: postgres #can be either sqlite or postgres
+      POSTGRES_URI: postgres://test:test@build-postgres-1
+    volumes:
+      - ../src:/app
+    ports:
+      - "8101:8101"
+    networks:
+      - basenet
+
+volumes:
+  pgs:
+networks:
+  basenet:
+    name: base_network
