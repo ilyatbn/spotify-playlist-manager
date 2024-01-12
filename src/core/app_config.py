@@ -5,7 +5,7 @@ from core.enums import DBEngine
 from functools import cached_property
 from urllib.parse import urlparse, urlunparse
 
-DEFAULT_DATABASE_NAME = "app_db"
+DEFAULT_DATABASE_NAME = "spotifyplmgr"
 
 # Obviously a very basic app config, not recommended for production use.
 # It would be better to get your config from secret managers / feature flag solutions!

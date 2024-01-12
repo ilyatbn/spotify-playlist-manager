@@ -17,8 +17,8 @@ services:
       - pgs:/var/lib/postgresql/data
     networks:
       - basenet
-  base_img:
-    image: ilyatbn/base_img-dev:latest
+  spotifymgr:
+    image: ilyatbn/spotifymgr:latest
     restart: always
     user: 1000:1000
     depends_on: [postgres]
@@ -28,7 +28,7 @@ services:
     volumes:
       - ../src:/app
     ports:
-      - "8101:8101"
+      - "8102:8101"
     networks:
       - basenet
 

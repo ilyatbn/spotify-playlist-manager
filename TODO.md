@@ -1,8 +1,6 @@
-dev:
-- implement better logger
-- implement basic jwt/auth0
-- database pagination/filters/permissions
+- homepage. 
+- login button(if not logged in) -> /login
+- 
 
-ops:
-- alembic
-- gh build and run test on pr to master
+
+callback

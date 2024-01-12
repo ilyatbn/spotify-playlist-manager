@@ -1,12 +1,15 @@
 
-## Python API service quickstart
-This is my implementation of FastAPI, coupled with SQLAlchemy and PostgreSQL or SQLite as a backend.
-There are many different examples of this found around the web. This version has some neat tricks that I couldn't find in other code, and some modifications to existing code I found and liked.
+## Spotify Playlist Manager
+Watch for changes in playlists and generate new playlists based on genres and music metadata.  
+This is meant to be an alternative to Spotify's "Genre Filters", which are unavailable in many countries, as well non mobile versions, or playlists other than "Liked Songs"
+More features might be imlemented in the future.
 
-**Features are added here based on my personal needs while I work on other services which are based on this template. As long as they are generic and can help ease setup pains, they will be added here.**
-### Features
-- FastAPI with a semi-modular BaseRouter class which is hopefully quite easy to use.
-- SQLAlchemy with PostgreSQL/SQLite support. Currently manual database and table creation methods are provided. Alembic migration support is on the roadmap.
+\* Note: Electronic music will be a focus here, with special features that should help with the filtering, since multi-artist, multi genre collaborations and Remixes are more prominent here.  
+
+## Features:
+- Login with Spotify.
+- Generate new genre based playlists from "Liked Songs"
+- Multi-Genre playlists. User can configure which genres go into which playlist.
 
 
 ### Prerequisites and Installation
@@ -26,5 +29,3 @@ There are many different examples of this found around the web. This version has
     from db.helpers import first_run
     await first_run()
     ```
----
-* **Note:** Don't forget to modify the Dockerfile, and docker-compose.yml and rename image tags.

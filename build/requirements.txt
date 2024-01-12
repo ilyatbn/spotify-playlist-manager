@@ -4,10 +4,11 @@ starlette==0.27.0
 uvicorn[standard]==0.25.0
 pydantic==2.5.2
 pydantic-settings==2.1.0
+async-fastapi-jwt-auth==0.6.2
 
 # database access
 SQLAlchemy==2.0.25
 asyncpg==0.29.0
 aiosqlite==0.19.0
 
-ipython==8.19.0
+ipython==8.18.0

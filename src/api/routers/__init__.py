@@ -1,7 +1,7 @@
 # import routers here
 from .home import HomeRouter
-from .users import UsersRouter
+from .login import LoginRouter, AuthCallbackRouter
 
 # from .home import router as homepage
 
-ACTIVE_ROUTERS = [UsersRouter, HomeRouter]
+ACTIVE_ROUTERS = [LoginRouter, HomeRouter, AuthCallbackRouter]
