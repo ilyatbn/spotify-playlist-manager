@@ -10,4 +10,5 @@ class UserModel(Base):
     id = mapped_column(Integer, primary_key=True)
     username = mapped_column(String, unique=True, nullable=False)
     display_name = mapped_column(String, unique=False, nullable=True)
-    enabled = mapped_column(Boolean, unique=False, default=True)
+    access_token = mapped_column(String, unique=False, nullable=True)
+    refresh_token = mapped_column(String, unique=False, nullable=True)

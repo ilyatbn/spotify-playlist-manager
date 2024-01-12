@@ -107,3 +107,8 @@ class User(AbstractBase):
     model = UserModel
     model_columns: ReadOnlyColumnCollection = model.__table__.columns
     columns: list = model.__table__.columns.keys()
+
+
+    async def get_username(self, username):
+        result = await self.get_item("username", username)
+        return result[0] if result else None        

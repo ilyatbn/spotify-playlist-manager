@@ -37,7 +37,7 @@ def database_exception_handler(ex):
 
 # TODO: Temporary, need to implement Alembic.
 async def create_db():
-    if not config.DB_ENGINE == "POSTGRES":
+    if not config.DB_ENGINE.lower() == "postgres":
         return
     mgr = DatabaseSessionManager()
     conn_str = urlparse(config.DATABASE_URI)
@@ -45,7 +45,7 @@ async def create_db():
     mgr.init(conn, autocommit=True)
 
     database = conn_str.path[1:]
-
+    logger.info(f"creating db {database}")
     async with mgr.session() as sess:
         try:
             result = await sess.execute(text(f"CREATE DATABASE {database}"))
@@ -54,12 +54,13 @@ async def create_db():
             pass
 
 
+# DO NOT EVER RUN THIS IN PRODUCTIONNNNNNNNNNNNNNNNNNNNNNNN
 async def create_schemas():
     sessionmanager = DatabaseSessionManager()
-    # all models have to be imported before this can work.. sucks.
     from db.models import User
 
     sessionmanager.init(config.DATABASE_URI)
+    await sessionmanager.drop_all()
     await sessionmanager.create_all()
 
 
