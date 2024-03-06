@@ -86,7 +86,7 @@ class AbstractBase(metaclass=Singleton):
         result = await self.get_item("id", item_id)
         return result[0] if result else None
 
-    async def create_item(self, **kwargs):
+    async def create_item(self, **kwargs) -> dict:
         create_data = self._parse_data(kwargs)
         result = await self.insert_item(**create_data)
         result_item = {"id": result.inserted_primary_key.id}

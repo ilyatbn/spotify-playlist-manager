@@ -63,14 +63,22 @@ class AuthCallbackRouter(BaseRouter):
             logger.info(f"new user {user.get('display_name')} created")
         else:
             logger.info(f"existing user {user.display_name} logged in")
+            user=user.__dict__
 
         # generate jwt. we don't actually want to expose the users' spotify access token, but the app access token.
-        access_token = await Authorize.create_access_token(subject=user.username)
-        refresh_token = await Authorize.create_refresh_token(subject=user.username)
+        access_token = await Authorize.create_access_token(subject=user.get("username"))
+        refresh_token = await Authorize.create_refresh_token(subject=user.get("username"))
         # Set the JWT and CSRF double submit cookies in the response
-        redirect = RedirectResponse('/manage')
-        await Authorize.set_access_cookies(access_token, redirect)
-        await Authorize.set_refresh_cookies(refresh_token, redirect)
+        redirect = RedirectResponse('/')
+        await Authorize.set_access_cookies(access_token, redirect, max_age=7200)
+        await Authorize.set_refresh_cookies(refresh_token, redirect, max_age=7200)
+        redirect.set_cookie(
+            key="spm_access",
+            value=1,
+            path="/",
+            max_age=7200,
+            samesite="strict", 
+        )
         return redirect
 
 

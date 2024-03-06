@@ -8,7 +8,11 @@ from core.logger import logger
 from core.spotify.user import SpotifyUserInfo
 from typing import Optional
 
-#### move
+#### move, merge/nuke after..
+SPOTIFY_CLIENT_ID = ""
+SPOTIFY_CLIENT_SECRET = ""
+BASE_URL = "http://localhost:8102"
+
 SPOTIFY_AUTH_SCOPES=['playlist-read-private', 'playlist-read-collaborative', 'playlist-modify-private' , 'playlist-modify-public', 'user-library-modify', 'user-library-read', 'user-read-email']
 SPOTIFY_BASE_URL = 'https://accounts.spotify.com'
 SPOTIFY_AUTH_ENDPOINT=f'{SPOTIFY_BASE_URL}/authorize?'

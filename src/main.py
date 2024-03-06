@@ -6,6 +6,7 @@ from api.routers import ACTIVE_ROUTERS
 from async_fastapi_jwt_auth import AuthJWT
 from async_fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
@@ -14,6 +15,8 @@ for router in ACTIVE_ROUTERS:
 for middleware in ACTIVE_MIDDLEWARE:
     app.add_middleware(middleware)
     add_cors_middleware(app)
+
+app.mount('/', StaticFiles(directory='front',html=True))
 
 
 @AuthJWT.load_config
