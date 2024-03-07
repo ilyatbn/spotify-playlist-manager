@@ -33,4 +33,7 @@ bash:
 	$(EXEC) bash
 
 logs:
-	docker logs -f spotifymgr-1
+	docker logs -f build-spotifymgr-1
+
+uvicorn:
+	cd src && ../venv/bin/uvicorn main:app --reload --host 0.0.0.0 --port 8181

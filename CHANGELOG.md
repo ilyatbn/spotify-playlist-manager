@@ -1,15 +1,8 @@
 ## Changelog.
 
-### v0.2
-- added abstract FastAPI APIRouter.
-- Added CORS middleware.
-- Added example API Routers that inherit the abstract BaseRouter.
----
-### v0.12
-- SQLAlchemy postgres support, basic db creation and db schema (manual first run method)
----
-### v0.11
-- SQLAlchemy with basic examples. sqlite supported. postgres still untested.
----
-### v0.1 - initial release
-- base FastAPI skeleton with docker build.
+### v0.01
+- basic login with Spotify and JWT, user model.
+- basic frontend with login
+- basic access token refresh
+- poc scripts for getting playlists from users
+- orm-like save model for sql alchemy (model_class.save(model_object)) - MIGRATE TO TEMPLATE SINCE ITS COOL.

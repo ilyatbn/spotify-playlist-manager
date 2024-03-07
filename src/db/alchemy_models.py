@@ -1,6 +1,8 @@
+from sqlalchemy import Integer, String
+from sqlalchemy.orm import mapped_column, reconstructor
+
 from core.db_client import Base
-from sqlalchemy import Boolean, ForeignKey, Integer, String
-from sqlalchemy.orm import mapped_column
+from core.spotify.auth import SpotifyAuthHandler
 
 
 class UserModel(Base):
@@ -12,3 +14,7 @@ class UserModel(Base):
     display_name = mapped_column(String, unique=False, nullable=True)
     access_token = mapped_column(String, unique=False, nullable=True)
     refresh_token = mapped_column(String, unique=False, nullable=True)
+
+    @reconstructor
+    def init_on_load(self):
+        self.auth = SpotifyAuthHandler(self)

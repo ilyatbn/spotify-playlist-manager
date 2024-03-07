@@ -1,15 +1,16 @@
 
-## Spotify Playlist Manager
-Watch for changes in playlists and generate new playlists based on genres and music metadata.  
-This is meant to be an alternative to Spotify's "Genre Filters", which are unavailable in many countries, as well non mobile versions, or playlists other than "Liked Songs"
-More features might be imlemented in the future.
+## SPLAM - Spotify Playlist Manager
+Watch for changes in playlists and generate new playlists based on genres and music metadata.
+This service is meant to be an alternative to Spotify's "Genre Filters", which are unavailable in many countries, as well as on non mobile versions, or playlists other than "Liked Songs".
 
-\* Note: Electronic music will be a focus here, with special features that should help with the filtering, since multi-artist, multi genre collaborations and Remixes are more prominent here.  
+More features might be implemented in the future.
+
+\* Note: Electronic music will be a focus here, with special features that should help with the filtering, since multi-artist, multi genre collaborations and Remixes are more prominent here, as well as many subgenres.
 
 ## Features:
 - Login with Spotify.
-- Generate new genre based playlists from "Liked Songs"
-- Multi-Genre playlists. User can configure which genres go into which playlist.
+- Generate new genre based playlists from a list of source playlists.
+- Multi-Genre playlists. User can configure which genres go into which playlist or playlists.
 
 
 ### Prerequisites and Installation

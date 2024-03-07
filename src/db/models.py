@@ -15,10 +15,11 @@ class AbstractBase(metaclass=Singleton):
         if not sessionmanager._sessionmaker:
             sessionmanager.init(config.DATABASE_URI)
             logger.debug("initialized model instance")
+        self.session = sessionmanager.session
 
     async def _query(self, statement):
         logger.debug(f"perform db query exec:{statement}")
-        async with sessionmanager.session() as session:
+        async with self.session() as session:
             try:
                 result = await session.execute(statement)
             except IntegrityError as ex:
@@ -32,11 +33,18 @@ class AbstractBase(metaclass=Singleton):
     # updates require commits so
     async def _exec(self, statement):
         logger.debug(f"perform db data manipulation exec:{statement}")
-        async with sessionmanager.session() as session:
+        async with self.session() as session:
             result = await session.execute(statement)
             await session.commit()
             logger.info(f"update affected {result.rowcount} rows.")
             return result
+
+    # ORMish update for a model
+    async def save(self, item):
+        async with self.session() as sess:
+            sess.add(item)
+            await sess.commit()
+            await sess.refresh(item)
 
     def _parse_data(self, data: dict):
         # disallow updating primary key, even if attempted.
@@ -108,7 +116,6 @@ class User(AbstractBase):
     model_columns: ReadOnlyColumnCollection = model.__table__.columns
     columns: list = model.__table__.columns.keys()
 
-
     async def get_username(self, username):
         result = await self.get_item("username", username)
-        return result[0] if result else None        
+        return result[0] if result else None
