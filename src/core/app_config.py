@@ -1,9 +1,12 @@
-from pydantic import Field, BaseModel
-from pydantic import ValidationError, field_validator, computed_field
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from core.enums import DBEngine
+import os
 from functools import cached_property
 from urllib.parse import urlparse, urlunparse
+
+from pydantic import BaseModel, Field, ValidationError, computed_field, field_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from core.enums import DBEngine
+
 DEFAULT_DATABASE_NAME = "spotifyplmgr"
 
 # Obviously a very basic app config, not recommended for production use.
@@ -49,7 +52,9 @@ config = Settings()
 
 
 class AuthJWTConfig(BaseModel):
-    authjwt_secret_key: str = "secret"
+    # token is valid for 60 minutes
+    authjwt_access_token_expires: int = 60
+    authjwt_secret_key: str = os.environ.get("AUTHJWT_SECRET", "very_secret_key")
     # Configure application to store and get JWT from cookies
     authjwt_token_location: set = {"cookies"}
     # Only allow JWT cookies to be sent over https
