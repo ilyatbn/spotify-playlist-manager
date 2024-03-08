@@ -1,0 +1,2 @@
+class SpotifyPlaylistRequestException(Exception):
+    pass

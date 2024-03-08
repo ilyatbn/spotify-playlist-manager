@@ -1,9 +1,8 @@
 from urllib.parse import urlparse, urlunparse
 
 import asyncpg.exceptions as asyncpg_exc
-from asyncpg.exceptions import DuplicateDatabaseError
 from fastapi import responses, status
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, ProgrammingError
 from sqlalchemy.sql import text
 
 from core.app_config import config
@@ -50,20 +49,28 @@ async def create_db():
         try:
             result = await sess.execute(text(f"CREATE DATABASE {database}"))
             return result
-        except DuplicateDatabaseError as ex:
-            pass
+        except ProgrammingError as ex:
+            original_exception = getattr(ex, "orig")
+            if "already exists" in original_exception.args[0]:
+                logger.info("database already exists")
+                return
+            raise original_exception
 
 
-# DO NOT EVER RUN THIS IN PRODUCTIONNNNNNNNNNNNNNNNNNNNNNNN
-async def create_schemas():
+# This is only for the initial creation during development.
+# Migrations are currently not supported.
+
+
+async def create_schemas(drop=False):
     sessionmanager = DatabaseSessionManager()
-    from db.models import User
+    from db.models import SplamPlaylist, SpotifyPlaylist, User
 
     sessionmanager.init(config.DATABASE_URI)
-    await sessionmanager.drop_all()
+    if drop:
+        await sessionmanager.drop_all()
     await sessionmanager.create_all()
 
 
-async def first_run():
+async def first_run(drop=False):
     await create_db()
-    await create_schemas()
+    await create_schemas(drop=drop)

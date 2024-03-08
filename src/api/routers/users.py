@@ -24,8 +24,8 @@ class UserManagementRouter(BaseRouter):
         await Authorize.jwt_required()
         current_user = await Authorize.get_jwt_subject()
         logger.info(current_user)
-        user = await self.model.get_username(current_user)
-        if user.display_name == "ilyatest":
+        user = await self.model.get_item_by_user(current_user)
+        if user.is_admin:
             #whoopie, an admin just logged in. give him more stuff to do.
             return await self.model.all()
         return []

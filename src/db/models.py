@@ -1,12 +1,14 @@
+from sqlalchemy import delete, insert, select, update
+from sqlalchemy.exc import IntegrityError
+from sqlalchemy.sql.base import ReadOnlyColumnCollection
+
 from core.app_config import config
 from core.db_client import sessionmanager
-from core.helpers import Singleton
-from db.alchemy_models import UserModel
-from sqlalchemy import select, insert, update, delete
-from sqlalchemy.exc import IntegrityError
-from core.logger import logger
-from sqlalchemy.sql.base import ReadOnlyColumnCollection
 from core.enums import DBEngine
+from core.helpers import Singleton
+from core.logger import logger
+from db.alchemy_models import SplamPlaylistModel, SpotifyPlaylistModel, UserModel
+
 
 class AbstractBase(metaclass=Singleton):
     model = None
@@ -94,6 +96,10 @@ class AbstractBase(metaclass=Singleton):
         result = await self.get_item("id", item_id)
         return result[0] if result else None
 
+    async def get_item_by_user(self, item_id: int):
+        result = await self.get_item("username", item_id)
+        return result[0] if result else None
+
     async def create_item(self, **kwargs) -> dict:
         create_data = self._parse_data(kwargs)
         result = await self.insert_item(**create_data)
@@ -116,6 +122,14 @@ class User(AbstractBase):
     model_columns: ReadOnlyColumnCollection = model.__table__.columns
     columns: list = model.__table__.columns.keys()
 
-    async def get_username(self, username):
-        result = await self.get_item("username", username)
-        return result[0] if result else None
+
+class SpotifyPlaylist(AbstractBase):
+    model = SpotifyPlaylistModel
+    model_columns: ReadOnlyColumnCollection = model.__table__.columns
+    columns: list = model.__table__.columns.keys()
+
+
+class SplamPlaylist(AbstractBase):
+    model = SplamPlaylistModel
+    model_columns: ReadOnlyColumnCollection = model.__table__.columns
+    columns: list = model.__table__.columns.keys()

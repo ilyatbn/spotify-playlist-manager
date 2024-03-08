@@ -20,15 +20,11 @@ class LoginRouter(BaseRouter):
         )
 
     def _logged_in(self, request: Request):
-        #verify jwt..
         return True if getattr(request.state, "user", None) else False
 
     async def login(self, request: Request):
         if not self._logged_in(request):
             return auth_handler.authorize_redirect
-        else:
-            #get user settings from db?..
-            pass
 
 class AuthCallbackRouter(BaseRouter):
     prefix = "/auth_callback"
@@ -47,13 +43,17 @@ class AuthCallbackRouter(BaseRouter):
             error = request.headers.get("error", "unknown error.")
             return JSONResponse({"error": "authorization failed", "error_details": error}, status_code=status.HTTP_401_UNAUTHORIZED)
 
-        token_metadata = auth_handler.get_access_token(code)
+        token_metadata = auth_handler.get_tokens(code)
         if not token_metadata:
             error = "something went wrong during access token request."
             return JSONResponse({"error": "authorization failed", "error_details": error}, status_code=status.HTTP_401_UNAUTHORIZED)
 
         # TODO: Obviously need to encrypt the access and refresh tokens, or better yet, store them in Vault and query by the username when required.
-        if not (user := await users_model.get_username(token_metadata.user_info.get("id"))):
+        if not (
+            user := await users_model.get_item_by_user(
+                token_metadata.user_info.get("id")
+            )
+        ):
             user = await users_model.create_item(
                 username=token_metadata.user_info.get("id"),
                 display_name=token_metadata.user_info.get("display_name"),
@@ -70,22 +70,13 @@ class AuthCallbackRouter(BaseRouter):
         refresh_token = await Authorize.create_refresh_token(subject=user.get("username"))
         # Set the JWT and CSRF double submit cookies in the response
         redirect = RedirectResponse('/')
-        await Authorize.set_access_cookies(access_token, redirect, max_age=7200)
-        await Authorize.set_refresh_cookies(refresh_token, redirect, max_age=7200)
+        await Authorize.set_access_cookies(access_token, redirect, max_age=3600)
+        await Authorize.set_refresh_cookies(refresh_token, redirect, max_age=3600)
         redirect.set_cookie(
             key="spm_access",
             value=1,
             path="/",
-            max_age=7200,
-            samesite="strict", 
+            max_age=3600,
+            samesite="strict",
         )
         return redirect
-
-
-
-# create or refresh access token
-# get user email
-# get or create user in local database, 
-# if get, redirect to /manage?
-# if create, create new config and redirect to /home..
-# home will 

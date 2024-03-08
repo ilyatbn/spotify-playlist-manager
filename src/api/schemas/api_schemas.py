@@ -23,3 +23,9 @@ class UserModelDataUpdate(UserModelDataCreate):
 
 class UserModelDataGet(BaseModelGet, UserModelDataCreate):
     pass
+
+
+class SpotifyPlaylistGet(BaseModel):
+    playlist_id: str
+    name: str
+    image_url: str
