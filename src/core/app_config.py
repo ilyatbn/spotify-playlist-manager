@@ -53,7 +53,7 @@ config = Settings()
 
 class AuthJWTConfig(BaseModel):
     # token is valid for 60 minutes
-    authjwt_access_token_expires: int = 60
+    authjwt_access_token_expires: int = 3600
     authjwt_secret_key: str = os.environ.get("AUTHJWT_SECRET", "very_secret_key")
     # Configure application to store and get JWT from cookies
     authjwt_token_location: set = {"cookies"}

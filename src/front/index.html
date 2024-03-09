@@ -10,6 +10,7 @@
         <script src="js/index.js"></script>
     </head>
     <body id="body" class="min-h-screen bg-gradient-to-t from-gray-700 via-gray-900 to-black">
+        <!-- main menu -->
         <div class="flex-1 flex flex-col">
             <nav id="topbar" class="px-4 flex justify-between bg-black h-20">
                 <ul id="topbarLeft" class="flex items-center">
@@ -28,8 +29,14 @@
                 </ul>
             </nav>
         </div>
-        <!-- <div id="loginDiv" class="grid h-screen place-items-center">
-            <button id="loginButton" class="bg-[#1ed760] hover:bg-[#1ed910] text-black font-bold py-2 px-4 rounded-full">Login with Spotify</button>
-        </div> -->
-    </body>
+</body>
+<style>
+    .hide-scroll-bar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+    .hide-scroll-bar::-webkit-scrollbar {
+        display: none;
+    }
+</style>
 </html>
