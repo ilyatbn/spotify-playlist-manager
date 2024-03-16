@@ -155,3 +155,16 @@ class UserPlaylistHandler:
         # tracks = get_playlist_tracks(start_pos=start_pos, after=playlist.last_added_at),
         # save last trackss 'added_at'
         # save total.
+
+        # (free mongo atlas instance?)
+        # get all tracks' artists and their genres, store in db as cache since this is annoying AF and gonna take forever otherwise.
+        # https://developer.spotify.com/documentation/web-api/reference/get-multiple-artists
+
+        # get all tracks' metadata and store in db (free mongo atlas instance?)
+        # https://developer.spotify.com/documentation/web-api/reference/get-several-audio-features
+
+        # for each new track:
+        # get_artist_genres(track.artist_id) [local or from cloud if not found]
+        # get_track_metadata(track.id) [local or from cloud if not found] - check track bpm, check internal genre mapping to bpm range
+        # check if there are dst playlists with the genre or subgenre or artist[]
+        # if everything fits, add the track to the dst_playlist.
