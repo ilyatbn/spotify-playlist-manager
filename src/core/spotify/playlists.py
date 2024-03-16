@@ -106,7 +106,7 @@ class UserPlaylistHandler:
         while next_playlist:
             chunk, next_playlist = self._get_chunk(
                 url=url,
-                next=next_playlist,
+                next_url=next_playlist,
             )
             api_response_items.extend(chunk)
         return api_response_items
