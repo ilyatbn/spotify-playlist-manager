@@ -1,6 +1,11 @@
 // WOW! You can see all my code and bypass my great firewall of menus. What a great hacker you are!
 // This whole frontend implementation is just for fun. don't ever write garbage like this yourself.
 //
+jQuery.expr[':'].icontains = function(a, i, m) {
+    return jQuery(a).text().toUpperCase()
+        .indexOf(m[3].toUpperCase()) >= 0;
+  };
+
 async function fetchUserData() {
     // do this once a session, because I don't really wanna overload requests on the BE for playlists.
     if (sessionStorage.hasOwnProperty("managed_spl")) {
@@ -48,7 +53,7 @@ async function loggedInContent() {
     <div id="create_view" class="flex flex-col m-auto p-auto">
         <h1 class="flex px-10 pt-6 font-bold text-2xl text-white">Select source playlists</h1>
         <h3 class="flex px-10 pb-4 font-bold text-sm text-gray-400">Note: Currently only available for playlists created by you or for you.</h1>
-        <div  id="src_playlists" class="flex overflow-x-scroll pb-10 hide-scroll-bar">
+        <div  id="src_playlists" class="flex overflow-x-scroll pb-10 hide-scroll-bar scrolling-touch">
             <div id="spl_items" class="flex flex-nowrap ml-5 mr-5"></div>
         </div>
     </div>
@@ -81,13 +86,9 @@ async function menuRouter(refresh=false) {
     }
     if (location.hash === "#create") {
         buildSpotifyPlaylists()
+        // scroll left right.
+        $('src_playlists').scrollLeft($(document).outerWidth());
 
-        var scrollContainer = document.getElementById("src_playlists");
-
-        scrollContainer.addEventListener("wheel", (evt) => {
-            evt.preventDefault();
-            scrollContainer.scrollLeft += evt.deltaY;
-        });
         $('[id^="spl_item_"]').on( "click", function() {
             if ($(this).hasClass("spl-selected")) {
                 $(this).removeClass("spl-selected")
