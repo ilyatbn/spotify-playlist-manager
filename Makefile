@@ -2,7 +2,8 @@
 COMPOSE := docker-compose -f build/docker-compose.yml
 CURRENT_VERSION_TAG := v0.1
 BUILDX := docker buildx build -f build/Dockerfile --platform linux/amd64,linux/arm64
-EXEC := docker exec -it build-spotifymgr-1
+CONTAINER := build-spotifymgr-1
+EXEC := docker exec -it
 
 build_local:
 	docker build -f build/Dockerfile -t ilyatbn/spotifymgr:latest .
@@ -27,13 +28,16 @@ remove:
 	$(COMPOSE) rm -v
 
 shell:
-	$(EXEC) ipython
+	$(EXEC) $(CONTAINER) ipython
 
 bash:
-	$(EXEC) bash
+	$(EXEC) $(CONTAINER) bash
+
+rootbash:
+	$(EXEC) -u root $(CONTAINER) bash
 
 logs:
-	docker logs -f build-spotifymgr-1
+	docker logs -f $(CONTAINER)
 
 uvicorn:
 	cd src && ../venv/bin/uvicorn main:app --reload --host 0.0.0.0 --port 8181

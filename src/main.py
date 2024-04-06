@@ -8,7 +8,7 @@ from async_fastapi_jwt_auth.exceptions import AuthJWTException
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-app = FastAPI()
+app = FastAPI(redoc_url=None)
 
 for router in ACTIVE_ROUTERS:
     app.include_router(router().router)

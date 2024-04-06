@@ -45,3 +45,9 @@ class SpotifyPlaylist(BaseModel):
     name: str
     snapshot_id: str  # used to trigger updates
     image_url: str
+
+
+class Track(BaseModel):
+    id: str
+    added_at: Optional[str]
+    artists: list

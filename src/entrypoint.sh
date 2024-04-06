@@ -5,6 +5,9 @@ case $1 in
   uvirun)
     uvicorn main:app --reload --host 0.0.0.0 --port 8101
     ;;
+  celery)
+    uvicorn main:app --reload --host 0.0.0.0 --port 8101
+    ;;
 
   *)
     echo "unknown command received."

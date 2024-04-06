@@ -3,6 +3,7 @@
 version: '3.1'
 
 services:
+  # main app and user playlist configs and metadata
   postgres:
     image: docker.io/bitnami/postgresql:14
     restart: always
@@ -17,6 +18,29 @@ services:
       - pgs:/var/lib/postgresql/data
     networks:
       - basenet
+
+  # spotify music metadata
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: test
+      MONGO_INITDB_ROOT_PASSWORD: test
+    volumes:
+      - mongo:/data/db
+    networks:
+      - basenet
+
+
+  # for celery
+  redis:
+    image: redis:7.2-alpine
+    restart: always
+    command: redis-server
+    networks:
+      - basenet
+
+  # app
   spotifymgr:
     image: ilyatbn/spotifymgr:latest
     restart: always
@@ -31,9 +55,26 @@ services:
       - "8102:8101"
     networks:
       - basenet
+    entrypoint: ["./entrypoint.sh", "uvirun"]
+
+  # celery
+  celery:
+    image: ilyatbn/spotifymgr:latest
+    restart: always
+    user: 1000:1000
+    depends_on: [postgres]
+    environment:
+      DB_ENGINE: postgres #can be either sqlite or postgres
+      POSTGRES_URI: postgres://test:test@build-postgres-1
+    volumes:
+      - ../src:/app
+    networks:
+      - basenet
+    entrypoint: ["./entrypoint.sh", "celery"]
 
 volumes:
   pgs:
+  mongo:
 networks:
   basenet:
     name: base_network

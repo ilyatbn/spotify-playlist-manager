@@ -24,7 +24,9 @@ class DatabaseSessionManager:
         self.engine = create_async_engine(host)
         if autocommit:
             self.engine = self.engine.execution_options(isolation_level="AUTOCOMMIT")
-        self._sessionmaker = async_sessionmaker(autocommit=False, bind=self.engine)
+        self._sessionmaker = async_sessionmaker(
+            autocommit=False, bind=self.engine, expire_on_commit=False
+        )
 
     async def close(self):
         if self.engine is None:

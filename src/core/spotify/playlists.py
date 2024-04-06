@@ -1,14 +1,16 @@
 import copy
+from datetime import datetime, timezone
+from typing import Tuple
 
 import requests
 
+from core.logger import logger
 from core.spotify.const import (
-    SPOTIFY_PLAYLIST_ENDPOINT,
     SPOTIFY_PLAYLISTS_ENDPOINT,
     SPOTIFY_SAVED_TRACKS_ENDPOINT,
     SPOTIFY_TRACKS_ENDPOINT,
 )
-from core.spotify.schemas import SpotifyPlaylist
+from core.spotify.schemas import SpotifyPlaylist, Track
 from exceptions import SpotifyPlaylistRequestException
 
 ALLOWED_NON_OWNER_PLAYLISTS = ["release radar", "liked songs", "neurobreaks"]
@@ -95,34 +97,46 @@ class UserPlaylistHandler:
             raise SpotifyPlaylistRequestException(f"{chunk.status_code, chunk.json()}")
 
         chunk_dict = chunk.json()
-        return chunk_dict["items"], chunk_dict["next"]
+        total = chunk_dict.get("total", None)
+        return chunk_dict["items"], chunk_dict["next"], total
 
     def get_items(self, url, start_pos: int = None, params={}) -> list:
         self.user.auth.refresh_access_token()
         api_response_items = []
 
-        chunk, next_playlist = self._get_chunk(
+        chunk, next_playlist, total = self._get_chunk(
             url=url,
             start_pos=start_pos,
             params=params,
         )
         api_response_items.extend(chunk)
         while next_playlist:
-            chunk, next_playlist = self._get_chunk(
+            chunk, next_playlist, total = self._get_chunk(
                 url=url,
                 next_url=next_playlist,
             )
             api_response_items.extend(chunk)
-        return api_response_items
+        return api_response_items, total
 
-    def _parse_tracks(self, tracklist: list, start_date=None) -> list:
+    def _parse_tracks(self, tracklist: list, last_track_date=None) -> list:
+        if not last_track_date:
+            last_track_date = datetime(year=1970, month=1, day=1, tzinfo=timezone.utc)
         parsed_tracks = []
         # max_added_at = None
         for track in tracklist:
             if (
-                track_added_at := item.get("added_at", None)
-            ) and track_added_at > start_date:
-                item = track
+                track_added_at := track.get("added_at", None)
+            ) and datetime.fromisoformat(track_added_at) > last_track_date:
+                track = track.get("track")
+                if not track.get("id"):
+                    logger.warning("could not determine track id. skipping")
+                    continue
+                # find out if there is a remixer in the api, if so, add "remixer", this will help, otherwise it will be in the "genre decisions"
+                item = Track(
+                    id=track.get("id"),
+                    added_at=track_added_at,
+                    artists=[artist.get("id") for artist in track.get("artists")],
+                )
                 parsed_tracks.append(item)
         return parsed_tracks
 
@@ -130,21 +144,33 @@ class UserPlaylistHandler:
         playlist_endpoint = SPOTIFY_PLAYLISTS_ENDPOINT.format(
             user_id=self.user.username
         )
-        playlists = self.get_items(url=playlist_endpoint, start_pos=start_pos)
+        playlists, total = self.get_items(url=playlist_endpoint, start_pos=start_pos)
+        logger.info(f"total user playlists: {total}")
         return self._parse_playlists(playlists)
 
-    def get_playlist_tracks(
-        self, playlist_id, start_pos: int = 0, start_date=None
-    ) -> list:
-        tracks_endpoint = SPOTIFY_TRACKS_ENDPOINT.format(playlist_id=playlist_id)
-        # meta = SPOTIFY_PLAYLIST_META_ENDPOINT.format(playlist_id=playlist_id)
-        params = {"fields": "items(added_at,track(id,name,artists))"}
-        tracks = self.get_items(url=tracks_endpoint, start_pos=start_pos, params=params)
-        return self._parse_tracks(tracks)
+    def get_playlist_metadata(
+        self, playlist_id, start_pos: int = 0, last_track_added_at=None
+    ) -> Tuple[list, int]:
+        logger.info(
+            f"getting playlist tracks, playlist_id={playlist_id}, start_pos={start_pos}"
+        )
+        tracks_endpoint = SPOTIFY_TRACKS_ENDPOINT.format(
+            playlist_id=playlist_id, user_id=self.user.username
+        )
+        params = {"fields": "items(added_at,track(id,name,artists)),next,total"}
+        tracks, total = self.get_items(
+            url=tracks_endpoint, start_pos=start_pos, params=params
+        )
+        logger.info(f"tracks from api, count={len(tracks)}, total={total}")
+        tracks_for_update = self._parse_tracks(tracks, last_track_added_at)
+        logger.info(f"tracks for update , count={len(tracks_for_update)}")
+        return tracks_for_update, total
 
-    def get_liked_tracks(self, start_pos: int = 0) -> list:
-        tracks = self.get_items(url=SPOTIFY_SAVED_TRACKS_ENDPOINT, start_pos=start_pos)
-        return self._parse_tracks(tracks)
+    def get_liked_tracks(self, start_pos: int = 0) -> Tuple[list, int]:
+        tracks, total = self.get_items(
+            url=SPOTIFY_SAVED_TRACKS_ENDPOINT, start_pos=start_pos
+        )
+        return self._parse_tracks(tracks), total
 
     def process_tracks(self):
         pass
