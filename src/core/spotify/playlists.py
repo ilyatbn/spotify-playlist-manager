@@ -22,9 +22,13 @@ class UserPlaylistHandler:
     def base_headers(self):
         return {"Authorization": f"Bearer {self.user.access_token}"}
 
-    def _get_image_url(self, images: list) -> str:
-        image_urls = [item.get("url") for item in images]
-        return image_urls[0] if image_urls else f"assets/default_playlist.png"
+    def _get_image_url(self, images: list | None) -> str:
+        default_playlist = "assets/default_playlist.png"
+        if not images:
+            return default_playlist
+
+        image_urls = [item.get("url", None) for item in images]
+        return image_urls[0] if image_urls else default_playlist
 
     def _is_prohibited_playlist(self, playlist_name: str) -> bool:
         return any([True for item in PROHIBITED_PLAYLISTS if item in playlist_name])
