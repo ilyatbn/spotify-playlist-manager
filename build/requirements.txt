@@ -22,6 +22,9 @@ redis==5.0.3
 celery[redis]==5.3.6
 
 # misc
-ipython==8.23.0
 requests==2.31.0
-pyreadline3==3.4.1
+# pyreadline3==3.4.1
+# jedi==0.19.1
+# prompt-toolkit==3.0.43
+ipython==8.23.0
+ptpython==3.0.26

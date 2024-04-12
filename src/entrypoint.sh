@@ -6,7 +6,7 @@ case $1 in
     uvicorn main:app --reload --host 0.0.0.0 --port 8101
     ;;
   celery)
-    uvicorn main:app --reload --host 0.0.0.0 --port 8101
+    celery -A main.celery_app worker --loglevel=info
     ;;
 
   *)

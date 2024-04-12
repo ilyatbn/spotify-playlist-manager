@@ -24,8 +24,8 @@ class Settings(BaseSettings):
     CORS_ALLOWED_METHODS: list = Field(default=["*"])
     CORS_ALLOWED_HEADERS: list = Field(default=["*"])
     CORS_ALLOW_CREDENTIALS: bool = Field(default=False)
-    REDIS_URL: str = "redis://redis:6379"
-    MONGO_URL: str = ""
+    REDIS_URI: str = Field(default="redis://redis:6379/0")
+    MONGO_URI: str = Field(default="mongodb://mongodb:27017")
 
     @field_validator("DB_ENGINE")
     def validate_db_engine(cls, value: str):
