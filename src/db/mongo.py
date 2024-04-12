@@ -4,6 +4,7 @@ from pymongo.database import Database
 
 from core.app_config import config
 from core.helpers import Singleton
+from core.logger import logger
 
 
 class InvalidCollectionSelection(Exception):
@@ -34,7 +35,7 @@ class MongoDBClient:
     def get_track_decision(self, track_id: str) -> str:
         decision = self.find(
             collection="decisions",
-            payload={"track_id": track_id},
+            query={"track_id": track_id},
         )
         return decision
 
@@ -48,7 +49,7 @@ class MongoDBClient:
     def get_track_metadata(self, track_id: str) -> str:
         track_meta = self.find(
             collection="track_metadata",
-            payload={"track_id": track_id},
+            query={"id": track_id},
         )
         return track_meta
 
@@ -62,20 +63,43 @@ class MongoDBClient:
     def get_artist_metadata(self, artist_id: str) -> str:
         artist_meta = self.find(
             collection="artists",
-            payload={"artist_id": artist_id},
+            query={"id": artist_id},
         )
         return artist_meta
 
     def set_artist_metadata(self, artist_metadata: dict) -> str:
-        artist_meta = self.find(
+        artist_meta = self.insert(
             collection="artists",
             payload=artist_metadata,
         )
         return artist_meta
 
+    def get_genre_metadata(self, genre: str) -> str:
+        genre_meta = (
+            self.find(
+                collection="genres",
+                query=(
+                    {
+                        "$or": [
+                            {"id": genre},
+                            {"alternate_names": {"$in": [genre]}},
+                        ]
+                    }
+                ),
+            ),
+        )
+        return genre_meta
+
+    def set_genre_metadata(self, genre_metadata: dict) -> str:
+        genre_meta = self.insert(
+            collection="genres",
+            payload=genre_metadata,
+        )
+        return genre_meta
+
     def find(self, collection: str, query: dict, many: bool = False):
         collection: Collection = getattr(self, collection, None)
-        if not collection:
+        if collection is None:
             raise InvalidCollectionSelection("this collection is not available")
         if many:
             pass
@@ -84,7 +108,7 @@ class MongoDBClient:
 
     def insert(self, collection: str, payload: list | dict, many=False) -> dict:
         collection: Collection = getattr(self, collection, None)
-        if not collection:
+        if collection is None:
             raise InvalidCollectionSelection("this collection is not available")
         if many:
             response = collection.insert_many(payload)

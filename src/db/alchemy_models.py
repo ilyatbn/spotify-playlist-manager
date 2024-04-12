@@ -52,25 +52,8 @@ class SplamPlaylistModel(Base):
     _table_args__ = {"extend_existing": True}
 
     id = mapped_column(Integer, primary_key=True)
-    username = mapped_column(
-        String, unique=False, nullable=False
-    )  # fkey? not that I need it..
+    username = mapped_column(String, unique=False, nullable=False)
     playlist_id = mapped_column(String, unique=True, nullable=False)
     playlist_name = mapped_column(String, unique=False, nullable=True)
     genres = mapped_column(ARRAY(String), unique=False, nullable=True)
-    source_playlist_id = mapped_column(
-        String, unique=False, nullable=True
-    )  # fkey? not that I need it..
-
-
-# splam
-# user_id, playlist_id, playlist_name, genres(array), source_playlist_id
-# ilya, 1, hardstyle, hard favorites
-# ilya, 3, hardstyle, liked songs
-# ilya, 2, hardcore, hard favorites
-# ilya, 4, hardcore, liked songs
-
-# spo
-# user_id, source_playlist_id, snapshot_id, last_sync_time, last_track_id
-# ilya, hard favorites, idjjj, 1.1.2024, 888
-# ilya, liked songs, ssss1, 1.1.2024, 10001
+    source_playlist_id = mapped_column(String, unique=False, nullable=True)

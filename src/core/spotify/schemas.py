@@ -49,5 +49,12 @@ class SpotifyPlaylist(BaseModel):
 
 class Track(BaseModel):
     id: str
+    name: str
     added_at: Optional[str]
     artists: list
+
+
+class Artist(BaseModel):
+    id: str
+    genres: list
+    name: str

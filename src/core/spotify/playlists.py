@@ -152,6 +152,7 @@ class UserPlaylistHandler:
                 item = Track(
                     id=track.get("id"),
                     added_at=track_added_at,
+                    name=track.get("name"),
                     artists=[artist.get("id") for artist in track.get("artists")],
                 )
                 parsed_tracks.append(item)

@@ -5,7 +5,7 @@ This service is meant to be an alternative to Spotify's "Genre Filters", which a
 
 More features might be implemented in the future.
 
-\* Note: Electronic music will be a focus here, with special features that should help with the filtering, since multi-artist, multi genre collaborations and Remixes are more prominent here, as well as many subgenres.
+\* Note: Electronic music will be a focus here, with special features that should help with the filtering, since multi-artist, multi genre collaborations and Remixes are more prominent here, as well as many subgenres. Spotify's API doesn't map tracks to genres, so this is a difficult task and will require lots of manual fine-tuning.
 
 ## Features:
 - Login with Spotify.
@@ -30,3 +30,12 @@ More features might be implemented in the future.
     from db.helpers import first_run
     await first_run()
     ```
+
+
+## Stack
+- FastAPI
+- SQLAlchemy
+- Celery
+- PostgreSQL
+- Redis
+- MongoDB

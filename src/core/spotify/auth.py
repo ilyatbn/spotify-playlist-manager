@@ -76,7 +76,9 @@ class SpotifyAuthHandler:
         if response.ok:
             user.access_token = response.json().get("access_token")
         else:
-            logger.warning("response from spotify not okay")
+            logger.warning(
+                f"response from spotify not okay: status={response.status_code}, content={response.content}"
+            )
 
     def validate_state(self, state):
         try:
