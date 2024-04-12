@@ -50,7 +50,7 @@ services:
       DB_ENGINE: postgres #can be either sqlite or postgres
       POSTGRES_URI: postgres://test:test@build-postgres-1
       REDIS_URI: redis://build-redis-1:6379
-      MONGO_URI: mongodb://build-mongo-1:27017
+      MONGO_URI: mongodb://test:test@build-mongo-1:27017
     volumes:
       - ../src:/app
     ports:

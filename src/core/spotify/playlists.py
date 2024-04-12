@@ -6,8 +6,10 @@ import requests
 
 from core.logger import logger
 from core.spotify.const import (
+    SPOTIFY_ARTIST_ENDPOINT,
     SPOTIFY_PLAYLISTS_ENDPOINT,
     SPOTIFY_SAVED_TRACKS_ENDPOINT,
+    SPOTIFY_TRACK_FEATURES_ENDPOINT,
     SPOTIFY_TRACKS_ENDPOINT,
 )
 from core.spotify.schemas import SpotifyPlaylist, Track
@@ -100,7 +102,7 @@ class UserPlaylistHandler:
         total = chunk_dict.get("total", None)
         return chunk_dict["items"], chunk_dict["next"], total
 
-    def get_items(self, url, start_pos: int = None, params={}) -> list:
+    def get_items(self, url, start_pos: int = None, params=dict()) -> list:
         self.user.auth.refresh_access_token()
         api_response_items = []
 
@@ -117,6 +119,21 @@ class UserPlaylistHandler:
             )
             api_response_items.extend(chunk)
         return api_response_items, total
+
+    # used for endpoints that have no pagination.
+    def get_item(self, url, params: dict = dict()) -> dict:
+        response = requests.get(
+            url=url,
+            params=params,
+            headers=self.base_headers,
+        )
+
+        if not response.ok:
+            raise SpotifyPlaylistRequestException(
+                f"{response.status_code, response.json()}"
+            )
+
+        return response.json()
 
     def _parse_tracks(self, tracklist: list, last_track_date=None) -> list:
         if not last_track_date:
@@ -172,29 +189,10 @@ class UserPlaylistHandler:
         )
         return self._parse_tracks(tracks), total
 
-    def process_tracks(self):
-        pass
-        # sync.
-        # playlist_meta_endpoint = SPOTIFY_PLAYLIST_ENDPOINT
-        # snapshot_id = playlist_meta_endpoint
-        # playlist = get_playlist_from_db.
-        # spotify_playlist = get_playlist_from_db.
-        # if not spotify_playlist.get("snapshot_id") == playlist.snapshot_id:
-        # start_pos = playlist.start_pos-100
-        #
-        # tracks = get_playlist_tracks(start_pos=start_pos, after=playlist.last_added_at),
-        # save last trackss 'added_at'
-        # save total.
+    # TODO: support bulks
+    def get_track_metadata(self, track: str | list, many: bool = False):
+        return self.get_item(url=SPOTIFY_TRACK_FEATURES_ENDPOINT.format(track_id=track))
 
-        # (free mongo atlas instance?)
-        # get all tracks' artists and their genres, store in db as cache since this is annoying AF and gonna take forever otherwise.
-        # https://developer.spotify.com/documentation/web-api/reference/get-multiple-artists
-
-        # get all tracks' metadata and store in db (free mongo atlas instance?)
-        # https://developer.spotify.com/documentation/web-api/reference/get-several-audio-features
-
-        # for each new track:
-        # get_artist_genres(track.artist_id) [local or from cloud if not found]
-        # get_track_metadata(track.id) [local or from cloud if not found] - check track bpm, check internal genre mapping to bpm range
-        # check if there are dst playlists with the genre or subgenre or artist[]
-        # if everything fits, add the track to the dst_playlist.
+    # TODO: support bulks
+    def get_artist_metadata(self, artist: str | list, many: bool = False):
+        return self.get_item(url=SPOTIFY_ARTIST_ENDPOINT.format(artist_id=artist))
