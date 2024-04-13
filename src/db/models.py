@@ -19,6 +19,25 @@ class AbstractBase(metaclass=Singleton):
             logger.debug("initialized model instance")
         self.session = sessionmanager.session
 
+    def get_filter_by_args(self, filter: dict):
+        filters = []
+        for key, value in filter.items():
+            if key.endswith("__gt"):
+                key = key[:-5]
+                filters.append(self._get_attr(key) > value)
+            elif key.endswith("__lt"):
+                key = key[:-5]
+                filters.append(self._get_attr(key) < value)
+            elif key.endswith("__ge"):
+                key = key[:-5]
+                filters.append(self._get_attr(key) >= value)
+            elif key.endswith("__le"):
+                key = key[:-5]
+                filters.append(self._get_attr(key) <= value)
+            else:
+                filters.append(self._get_attr(key) == value)
+        return filters
+
     async def _query(self, statement):
         logger.debug(f"perform db query exec:{statement}")
         async with self.session() as session:
@@ -61,6 +80,12 @@ class AbstractBase(metaclass=Singleton):
     # query data by single key:value filter
     async def all(self):
         statement = select(self.model)
+        return await self._query(statement)
+
+    async def filter(self, filters: dict):
+        statement = select(self.model)
+        filters = self.get_filter_by_args(filters)
+        statement = statement.filter(*filters)
         return await self._query(statement)
 
     # query data by single key:value filter

@@ -1,4 +1,5 @@
 import base64
+import time
 from functools import cached_property
 from urllib.parse import urlencode
 
@@ -66,6 +67,11 @@ class SpotifyAuthHandler:
 
     def refresh_access_token(self, user=None):
         user = user or self.user
+        if not getattr(self, "last_refresh_time", None):
+            self.last_refresh_time = time.time()
+        else:
+            if time.time() - self.last_refresh_time < 1800:
+                return
         response = requests.post(
             SPOTIFY_AUTH_TOKEN_ENDPOINT,
             headers=self.base_headers,
@@ -74,6 +80,7 @@ class SpotifyAuthHandler:
             ).model_dump(),
         )
         if response.ok:
+            logger.info(f"access token refreshed for {self.user.username}")
             user.access_token = response.json().get("access_token")
         else:
             logger.warning(

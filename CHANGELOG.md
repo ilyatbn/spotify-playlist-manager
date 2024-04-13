@@ -1,5 +1,10 @@
 ## Changelog.
-
+### v0.03 - WIP
+- Playlist Sync task.
+### v0.02
+- Implemented Celery
+- Added Redis for Celery
+- Implemented Artist and Track metadata caching in local MongoDB
 ### v0.01
 - basic login with Spotify and JWT, user model.
 - basic frontend with login

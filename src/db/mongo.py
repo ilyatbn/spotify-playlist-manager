@@ -21,6 +21,9 @@ class MongoDBClient:
         self.track_metadata: Collection = (
             database.track_metadata
         )  # collection for caching tracks metadata
+        self.album_metadata: Collection = (
+            database.album_metadata
+        )  # collection for caching album metadata for tracks
         self.genres: Collection = (
             database.genres
         )  # collection for storing genre/subgenre metadata like decision rules
@@ -96,6 +99,20 @@ class MongoDBClient:
             payload=genre_metadata,
         )
         return genre_meta
+
+    def get_album_metadata(self, album_id: str) -> str:
+        album_meta = self.find(
+            collection="album_metadata",
+            query={"id": album_id},
+        )
+        return album_meta
+
+    def set_album_metadata(self, album_metadata: dict) -> str:
+        album_meta = self.insert(
+            collection="album_metadata",
+            payload=album_metadata,
+        )
+        return album_meta
 
     def find(self, collection: str, query: dict, many: bool = False):
         collection: Collection = getattr(self, collection, None)

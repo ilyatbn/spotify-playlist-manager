@@ -57,7 +57,6 @@ class AuthCallbackRouter(BaseRouter):
             user = await users_model.create_item(
                 username=token_metadata.user_info.get("id"),
                 display_name=token_metadata.user_info.get("display_name"),
-                access_token=token_metadata.access_token,
                 refresh_token=token_metadata.refresh_token,
             )
             logger.info(f"new user {user.get('display_name')} created")

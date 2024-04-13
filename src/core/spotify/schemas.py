@@ -52,9 +52,19 @@ class Track(BaseModel):
     name: str
     added_at: Optional[str]
     artists: list
+    album_id: str
 
 
 class Artist(BaseModel):
     id: str
     genres: list
     name: str
+
+
+class Album(BaseModel):
+    id: str
+    label: str
+    genres: Optional[list] = list()
+    tracks: Optional[list] = list()
+    copyrights: Optional[list] = list()
+    release_date: Optional[str] = None

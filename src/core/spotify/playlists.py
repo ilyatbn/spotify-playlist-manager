@@ -6,13 +6,15 @@ import requests
 
 from core.logger import logger
 from core.spotify.const import (
+    SPOTIFY_ALBUMS_ENDPOINT,
     SPOTIFY_ARTIST_ENDPOINT,
-    SPOTIFY_PLAYLISTS_ENDPOINT,
+    SPOTIFY_PLAYLIST_ENDPOINT,
     SPOTIFY_SAVED_TRACKS_ENDPOINT,
     SPOTIFY_TRACK_FEATURES_ENDPOINT,
     SPOTIFY_TRACKS_ENDPOINT,
+    SPOTIFY_USER_PLAYLISTS_ENDPOINT,
 )
-from core.spotify.schemas import SpotifyPlaylist, Track
+from core.spotify.schemas import Album, Artist, SpotifyPlaylist, Track
 from exceptions import SpotifyPlaylistRequestException
 
 ALLOWED_NON_OWNER_PLAYLISTS = ["release radar", "liked songs", "neurobreaks"]
@@ -122,6 +124,7 @@ class UserPlaylistHandler:
 
     # used for endpoints that have no pagination.
     def get_item(self, url, params: dict = dict()) -> dict:
+        self.user.auth.refresh_access_token()
         response = requests.get(
             url=url,
             params=params,
@@ -148,25 +151,25 @@ class UserPlaylistHandler:
                 if not track.get("id"):
                     logger.warning("could not determine track id. skipping")
                     continue
-                # find out if there is a remixer in the api, if so, add "remixer", this will help, otherwise it will be in the "genre decisions"
                 item = Track(
                     id=track.get("id"),
                     added_at=track_added_at,
                     name=track.get("name"),
                     artists=[artist.get("id") for artist in track.get("artists")],
+                    album_id=track.get("album").get("id"),
                 )
                 parsed_tracks.append(item)
         return parsed_tracks
 
     def get_user_playlists(self, start_pos: int = None) -> list:
-        playlist_endpoint = SPOTIFY_PLAYLISTS_ENDPOINT.format(
+        playlist_endpoint = SPOTIFY_USER_PLAYLISTS_ENDPOINT.format(
             user_id=self.user.username
         )
         playlists, total = self.get_items(url=playlist_endpoint, start_pos=start_pos)
         logger.info(f"total user playlists: {total}")
         return self._parse_playlists(playlists)
 
-    def get_playlist_metadata(
+    def get_playlist_tracks(
         self, playlist_id, start_pos: int = 0, last_track_added_at=None
     ) -> Tuple[list, int]:
         logger.info(
@@ -175,7 +178,9 @@ class UserPlaylistHandler:
         tracks_endpoint = SPOTIFY_TRACKS_ENDPOINT.format(
             playlist_id=playlist_id, user_id=self.user.username
         )
-        params = {"fields": "items(added_at,track(id,name,artists)),next,total"}
+        params = {
+            "fields": "items(added_at,track(id,name,artists,album(id))),next,total"
+        }
         tracks, total = self.get_items(
             url=tracks_endpoint, start_pos=start_pos, params=params
         )
@@ -196,4 +201,21 @@ class UserPlaylistHandler:
 
     # TODO: support bulks
     def get_artist_metadata(self, artist: str | list, many: bool = False):
-        return self.get_item(url=SPOTIFY_ARTIST_ENDPOINT.format(artist_id=artist))
+        artist = self.get_item(url=SPOTIFY_ARTIST_ENDPOINT.format(artist_id=artist))
+        return Artist(**artist).model_dump()
+
+    # TODO: support bulks
+    def get_album_metadata(self, album: str | list, many: bool = False):
+        album = self.get_item(url=SPOTIFY_ALBUMS_ENDPOINT.format(album_id=album))
+        album["tracks"] = [item.get("id") for item in album["tracks"]["items"]]
+        return Album(**album).model_dump()
+
+    def get_playlist_metadata(
+        self,
+        playlist_id: str | list,
+        many: bool = False,
+        params: dict = {"fields": "id,snapshot_id"},
+    ):
+        return self.get_item(
+            url=SPOTIFY_PLAYLIST_ENDPOINT.format(playlist_id=playlist_id), params=params
+        )

@@ -1,4 +1,4 @@
-from sqlalchemy import ARRAY, Boolean, ForeignKey, Integer, String
+from sqlalchemy import ARRAY, Boolean, ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import mapped_column, reconstructor, relationship
 
 from core.db_client import Base
@@ -34,7 +34,7 @@ class SpotifyPlaylistModel(Base):
     username = mapped_column(ForeignKey("app_user.username"))
     spotify_playlist_id = mapped_column(String, unique=True, nullable=False)
     snapshot_id = mapped_column(String, unique=False, nullable=True)
-    last_sync_time = mapped_column(String, unique=False, nullable=True)
+    last_sync_time = mapped_column(Numeric, unique=False, nullable=True)
     last_track_added_at = mapped_column(String, unique=False, nullable=True)
     track_count = mapped_column(Integer, unique=False, nullable=True, default=0)
 
