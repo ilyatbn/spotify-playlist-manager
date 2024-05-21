@@ -1,3 +1,4 @@
+# **PROJECT IS UNDER DEVELOPMENT**  
 
 ## SPLAM - Spotify Playlist Manager
 Watch for changes in playlists and generate new playlists based on genres and music metadata.
@@ -9,7 +10,7 @@ More features might be implemented in the future.
 
 ## Features:
 - Login with Spotify.
-- Generate new genre based playlists from a list of source playlists.
+- Generate new genre based playlists from a list of source playlists. We support all the playlists you have in your library
 - Multi-Genre playlists. User can configure which genres go into which playlist or playlists.
 
 
